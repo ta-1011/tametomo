@@ -7,6 +7,34 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  savingsGoals SavingsGoal[]
+}
+
+model SavingsGoal {
+  id Int @id @default(autoincrement())
+  user_id Int
+  target_amount Int
+  is_public Boolean @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  user User @relation(fields:[user_id], references: [id])
+  savings Savings[]
+}
+
+model Savings {
+  id Int @id @default(autoincrement())
+  saving_goal_id Int 
+  amount Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  savingsGoal SavingsGoal @relation(fields: [saving_goal_id], references: [id])
 }
