@@ -1,10 +1,8 @@
 "use client";
 
-import ErrorMessage from "@/app/_components/formUi/ErrorMessage";
 import { supabase } from "@/app/_libs/supabase";
 import { inputForm } from "@/app/_types/inputForm";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import Button from "@/app/_components/ui/Button";
@@ -14,14 +12,11 @@ const page = () => {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<inputForm>();
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const onSubmit = async (data: any) => {
-    setIsLoading(true);
-
     const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
@@ -33,7 +28,6 @@ const page = () => {
     } else {
       router.replace("/");
     }
-    setIsLoading(false);
   };
 
   return (
@@ -60,7 +54,7 @@ const page = () => {
               type="email"
               id="email"
               placeholder="dummy@mail.com"
-              disabled={isLoading}
+              disabled={isSubmitting}
               {...register("email", {
                 required: "メールアドレスを入力してください。",
                 pattern: {
@@ -90,7 +84,7 @@ const page = () => {
             <ErrorMessage message={errors.password?.message} />
           </div>
           <div className="text-center">
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isSubmitting}>
               新規登録
             </Button>
             <div className="mt-8">

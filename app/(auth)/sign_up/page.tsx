@@ -2,7 +2,6 @@
 
 import { supabase } from "@/app/_libs/supabase";
 import { inputForm } from "@/app/_types/inputForm";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import Button from "@/app/_components/ui/Button";
@@ -13,12 +12,10 @@ const page = () => {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<inputForm>();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async (data: inputForm) => {
-    setIsSubmitting(true);
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
@@ -33,7 +30,6 @@ const page = () => {
       reset();
       alert("確認メールを送信しました。");
     }
-    setIsSubmitting(false);
   };
 
   return (
