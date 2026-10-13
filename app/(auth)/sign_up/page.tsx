@@ -5,7 +5,7 @@ import { inputForm } from "@/app/_types/inputForm";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import Button from "@/app/_components/ui/Button";
-import ErrorMessage from "@/app/_components/formUi/ErrorMessage";
+import ErrorMessage from "@/app/_components/ui/InputForm/ErrorMessage";
 
 const page = () => {
   const {
@@ -16,19 +16,23 @@ const page = () => {
   } = useForm<inputForm>();
 
   const onSubmit = async (data: inputForm) => {
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        emailRedirectTo: "http://localhost:3000/sign_in",
-      },
-    });
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: "http://localhost:3000/sign_in",
+        },
+      });
 
-    if (error) {
-      alert(`登録に失敗しました：${error.message}`);
-    } else {
-      reset();
-      alert("確認メールを送信しました。");
+      if (error) {
+        alert(`登録に失敗しました：${error.message}`);
+      } else {
+        reset();
+        alert("確認メールを送信しました。");
+      }
+    } catch (error) {
+      alert("予期しないエラーが発生しました。");
     }
   };
 
@@ -39,12 +43,12 @@ const page = () => {
           新規登録
         </h1>
       </div>
-      <div className="flex justify-center pt-16 max-[981px]:mx-4">
+      <div className="flex justify-center pt-16 max-[980px]:mx-4">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-4 w-full min-[981px]:w-175"
+          className="space-y-8 w-full min-[980px]:w-175"
         >
-          <div className="mb-8">
+          <div>
             <label
               htmlFor="email"
               className="block mb-2 text-sm font-medium text-gray-900"
