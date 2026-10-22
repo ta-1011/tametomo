@@ -12,8 +12,8 @@ type Props = {
 const LoginLayout = ({ children }: Props) => {
   return (
     <main>
-      <div className="mt-[112px] flex  min-h-[calc(100vh-80px)] px-4">
-        <aside className="fixed top-[112px] z-40 flex h-[calc(100vh-160px)] w-64 flex-col bg-amber-50 p-8">
+      <div className="mt-[132px] flex  min-h-[calc(100vh-80px)] px-4">
+        <aside className="fixed top-[132px] z-40 flex h-[calc(100vh-220px)] w-64 flex-col bg-amber-50 p-8">
           <div className="font-bold">MENU</div>
           {Sidebar.map((item) => {
             return (
