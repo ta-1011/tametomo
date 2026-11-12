@@ -13,6 +13,7 @@ datasource db {
 
 model User {
   id Int @id @default(autoincrement())
+  supabase_id String @unique
   name String
   savingsGoals SavingsGoal[]
 }
@@ -32,6 +33,7 @@ model SavingsGoal {
 model Savings {
   id Int @id @default(autoincrement())
   saving_goal_id Int 
+  type String
   amount Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
