@@ -65,7 +65,7 @@ const Home = () => {
     fetchSavings();
   }, []);
 
-  // ----- 現在の貯金額をの計算 -----
+  // ----- 現在の貯金額を計算 -----
   const currentAmount = savings.reduce((total, saving) => {
     if (saving.type === "plus") {
       return total + saving.amount;
@@ -81,6 +81,14 @@ const Home = () => {
 
     if (!token) {
       alert("ログインしてください。");
+      return;
+    }
+
+    const CheckingCurrentAmount =
+      data.type === "plus" ? currentAmount + value : currentAmount - value;
+
+    if (CheckingCurrentAmount < 0) {
+      alert("貯金額が0円を下回るため、この金額では記録できません");
       return;
     }
 
