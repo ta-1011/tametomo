@@ -1,5 +1,6 @@
 import { prisma } from "@/app/_libs/prisma";
 import { supabase } from "@/app/_libs/supabase";
+import { SavingsRequest } from "@/app/_types/savings";
 import { NextRequest, NextResponse } from "next/server";
 
 // ----- ログイン情報の確認 -----
@@ -96,7 +97,7 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const body = await request.json();
+    const body: SavingsRequest = await request.json();
     const { savingsGoal } = await getOrCreateUser(user);
     const savings = await prisma.savings.create({
       data: {

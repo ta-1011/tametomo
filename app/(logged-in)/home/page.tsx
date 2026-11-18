@@ -5,19 +5,7 @@ import AmountInput from "@/app/_components/ui/AmountInput";
 import { useState, useEffect } from "react";
 import { supabase } from "@/app/_libs/supabase";
 import { useForm, Controller } from "react-hook-form";
-
-// DBから取得する貯金記録用の型
-type Savings = {
-  id: number;
-  type: "plus" | "minus";
-  amount: number;
-  created_at: string;
-};
-// フォームの入力値の型
-type SavingsForm = {
-  type: "plus" | "minus";
-  amount: string; // ←フォームの段階ではstringで受け取るしかない
-};
+import { Savings, SavingsForm } from "@/app/_types/savings";
 
 const Home = () => {
   // DBから取得した貯金額
@@ -84,10 +72,9 @@ const Home = () => {
       return;
     }
 
-    const CheckingCurrentAmount =
+    const checkingCurrentAmount =
       data.type === "plus" ? currentAmount + value : currentAmount - value;
-
-    if (CheckingCurrentAmount < 0) {
+    if (checkingCurrentAmount < 0) {
       alert("貯金額が0円を下回るため、この金額では記録できません");
       return;
     }
