@@ -4,24 +4,33 @@ import ExpenditureToggle from "@/app/_components/ui/ExpenditureToggle";
 import AmountInput from "@/app/_components/ui/AmountInput";
 import { useState, useEffect } from "react";
 import { supabase } from "@/app/_libs/supabase";
+import { useForm, Controller } from "react-hook-form";
 
-// 貯金記録用の型
+// DBから取得する貯金記録用の型
 type Savings = {
   id: number;
   type: "plus" | "minus";
   amount: number;
   created_at: string;
 };
+// フォームの入力値の型
+type SavingsForm = {
+  type: "plus" | "minus";
+  amount: string; // ←フォームの段階ではstringで受け取るしかない
+};
 
 const Home = () => {
-  // 貯金のプラス、マイナス
-  const [type, setType] = useState<"plus" | "minus">("plus");
-  // 入力する貯金額
-  const [amount, setAmount] = useState("");
   // DBから取得した貯金額
   const [savings, setSavings] = useState<Savings[]>([]);
   //　認証用のトークン
   const [token, setToken] = useState<string | null>(null);
+
+  const { handleSubmit, register, reset, control } = useForm<SavingsForm>({
+    defaultValues: {
+      type: "plus",
+      amount: "",
+    },
+  });
 
   // ----- DBから貯金記録を取得 -----
   useEffect(() => {
@@ -66,13 +75,9 @@ const Home = () => {
   }, 0);
 
   // ----- currentAmountを使って入力チェック -----
-  const handleSubmit = async () => {
-    const value = Number(amount);
-
-    if (!amount) {
-      alert("貯金額を入力してください。");
-      return;
-    }
+  const onSubmit = async (data: SavingsForm) => {
+    // ここでstring型をnumber型に
+    const value = Number(data.amount);
 
     if (!token) {
       alert("ログインしてください。");
@@ -86,20 +91,21 @@ const Home = () => {
         "Content-type": "application/json",
         Authorization: token,
       },
-      body: JSON.stringify({ type, amount: value }),
+      body: JSON.stringify({ type: data.type, amount: value }),
     });
 
-    const data = await res.json();
+    const result = await res.json();
 
     if (!res.ok) {
-      alert(data.message);
+      alert(result.message);
       return;
     }
 
     // DBに保存した貯金記録を、現在の savings に追加
-    setSavings((prevSavings) => [...prevSavings, data.savings]);
+    setSavings((prevSavings) => [...prevSavings, result.savings]);
 
-    setAmount("");
+    // フォームを初期状態に戻す
+    reset();
   };
 
   return (
@@ -124,28 +130,43 @@ const Home = () => {
         {/* ここに達成率の円グラフを配置 */}
       </div>
 
+      {/* 入力操作 */}
       <div className="mt-8">
         <div>
           <h2>貯金の記録</h2>
         </div>
-        <ExpenditureToggle type={type} onChange={setType} />
-        <div className="flex items-center gap-3">
-          <AmountInput
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="貯金額を入力"
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Controller
+            name="type"
+            control={control}
+            render={(props) => (
+              <ExpenditureToggle
+                type={props.field.value}
+                onChange={props.field.onChange}
+              />
+            )}
           />
-          <span className="font-bold">円</span>
-          <button
-            onClick={handleSubmit}
-            className="rounded-md bg-blue-500 px-6 py-3 font-bold text-white hover:bg-blue-600"
-          >
-            記録する
-          </button>
-        </div>
+          <div className="flex items-center gap-3">
+            <AmountInput
+              type="number"
+              placeholder="貯金額を入力"
+              {...register("amount", {
+                required: "貯金額を入力してください。",
+              })}
+            />
+
+            <span className="font-bold">円</span>
+            <button
+              type="submit"
+              className="rounded-md bg-blue-500 px-6 py-3 font-bold text-white hover:bg-blue-600"
+            >
+              記録する
+            </button>
+          </div>
+        </form>
       </div>
 
+      {/* 時系列の折れ線グラフ内容 */}
       <div className="mt-8 inline-flex items-center gap-4 rounded-full bg-blue-50 px-4 py-1">
         <button>{"<"}</button>
         <span>2026-09</span>
@@ -153,7 +174,7 @@ const Home = () => {
       </div>
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 p-6">
-        {/* ここに折れ線グラフを配置 */}
+        {/* グラフ */}
       </div>
     </>
   );
